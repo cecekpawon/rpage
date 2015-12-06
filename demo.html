@@ -12,7 +12,7 @@
         $(document).ready(function () {
             $.fn.generateRandomPagination = function(options)
             {
-                var content = '<li class="left-etc"><a href="#">&laquo;</a></li>';
+                var content = '<li class="left-etc"><a href="">&laquo;</a></li>';
                 for (var i = 1; i <= options.max_value; i++)
                 {
                     if (i == options.selected_value)
@@ -20,12 +20,12 @@
                     else
                         content += '<li><a href="">' + i + '</a></li>';
                 }
-                content += '<li><a href="#">&raquo;</a></li>';
+                content += '<li><a href="">&raquo;</a></li>';
                 $(this).html(content);
             }
 
             var i = 50;
-            $(".pagination").each(function(){
+            $(".demo").each(function(){
                 $(this).generateRandomPagination({
                     max_value: 100,
                     selected_value: i
@@ -39,12 +39,32 @@
     <style type="text/css">
         /*
         .parsed {display: none!important;}
+        .paginations {
+            max-height: 34px;
+            overflow: hidden;
+        }
         */
+        .pagnav {
+            margin: auto 200px;
+            min-width: 300px;
+            width: 80%;
+            background-color: #f5f5f5;
+            margin: 0 auto;
+            text-align: center;
+            margin: 20px auto;
+        }
     </style>
 </head>
 <body>
-    <div style="position: relative; width: 80%; background-color: #f5f5f5; margin: 0 auto; text-align: center; margin-top: 250px;">
-        <ul class="pagination"></ul>
+    <div class="pagnav">
+        <ul class="demo pagination"></ul>
     </div>
+
+    <div class="pagnav"><ul class="pagination"><li class="active"><span>1</span> </li><li><a href="">2</a> </li><li><a href="">3</a> </li><li><a href="">4</a> </li><li><a href="">5</a> </li><li><a href="">6</a> </li><li><a href="">7</a> </li><li><a href="">8</a> </li><li><a href="">9</a> </li><li><a href="">10</a> </li><li><span class="nav_ext">...</span> </li><li><a href="">19</a></li><li><a href="">&raquo;</a> </li></ul></div>
+
+    <div class="pagnav"><ul class="pagination"><li><a href="">&laquo;</a> </li><li><span class="nav_ext">...</span> </li><li><a href="">6</a> </li><li><a href="">7</a> </li><li><a href="">8</a> </li><li><a href="">9</a> </li><li class="active page-away-0"><span>10</span> </li><li><a href="">11</a> </li><li><a href="">12</a> </li><li><a href="">13</a> </li><li><a href="">14</a> </li><li><span class="nav_ext">...</span> </li><li><a href="">19</a></li><li><a href="">&raquo;</a> </li></ul></div>
+
+    <div class="pagnav"><ul class="pagination"><li><a href="">&laquo;</a> </li><li><a href="">1</a></li><li><a href="">10</a> </li><li><a href="">11</a> </li><li><a href="">12</a> </li><li><a href="">13</a> </li><li class="active"><span>14</span> </li><li><a href="">15</a> </li><li><a href="">16</a> </li><li><a href="">17</a> </li><li><a href="">18</a> </li><li><a href="">19</a></li><li><a href="">&raquo;</a> </li></ul></div>
+
 </body>
 </html>

@@ -11,19 +11,27 @@
 
         function rPage($container)
         {
+            this.use_delay = false; // let user decide
             this.container = $container;
             this.parent = this.container.parent();
-            // maybe user can pre-define this later
+
+            // maybe user can pre-define this later:
+
+            // ## class
             this.nextprev_class = ["prev", "next"];
-            this.nextprev_text = $.merge(this.nextprev_class, ["»", "«"]);
             this.dots_class = ["dots"];
-            this.dots_text = ["..."];
             this.disabled_class = "disabled removable";
             this.rightetc_class = "right-etc";
             this.leftetc_class = "left-etc";
             this.pageaway_class = "page-away-";
             this.parsed_class = "parsed";
             this.active_class = "active";
+
+            // ## text label
+            this.nextprev_text = $.merge(this.nextprev_class, ["»", "«"]);
+            this.dots_text = ["..."];
+
+            // ## node
             this.child_el = "li";
             this.child_el_inner = "span";
 
@@ -41,8 +49,9 @@
                     }
                     else
                     {
-                        className = ($(this).index() > active_index) ? this.rightetc_class : this.leftetc_class;
+                        className = ($(this).index() > active_index) ? $this.rightetc_class : $this.leftetc_class;
                     }
+
                     $(this).addClass(className);
                 });
             }
@@ -106,20 +115,20 @@
             {
                 var
                     active_index = this.els.filter("." + this.active_class).index(),
-                    li = $container.find(this.child_el).not("." + this.parsed_class),
-                    farthest_index = li.length > 0 ? li.length - 1 : 0,
+                    nodes = this.container.find(this.child_el).not("." + this.parsed_class),
+                    farthest_index = nodes.length > 0 ? (nodes.length - 1) : 0,
                     is_needsEtcSign_init = false,
                     is_needsEtcSign_prev = this.needsEtcSign(1, active_index),
-                    is_needsEtcSign_next = this.needsEtcSign(active_index, farthest_index/* - 1*/),
+                    is_needsEtcSign_next = this.needsEtcSign(active_index, farthest_index /*- 1*/), // ??
                     exitloop = false,
                     htmlEtcSign = $("<" + this.child_el + "/>", {class: this.disabled_class})
                         .append($("<" + this.child_el_inner + "/>", {text: this.dots_text})),
                     $this = this;
 
-                for (var i = farthest_index/* - 1*/; i > 0; i--)
+                for (var i = farthest_index /*- 1*/; i > 0; i--) // ??
                 {
                     var candidate = $this.els.not("." + $this.parsed_class).filter(function(){
-                        return $(this).hasClass($this.pageaway_class + i.toString())/* && this.style["display"] != "none"*/;
+                        return $(this).hasClass($this.pageaway_class + i.toString());
                     });
 
                     candidate.each(function(){
@@ -152,36 +161,46 @@
                 }
             }
 
+            this.getEtcSign = function(els)
+            {
+                var
+                    textmap = $.map(
+                      els,
+                      function(el) {
+                          return $(el).text()
+                      })
+                      .join(" ");
+
+                return els.find("[class*='" + this.dots_class + "']").length || this.compareText(textmap, this.dots_text);
+            }
+
             this.needsEtcSign = function(el1_index, el2_index)
             {
-                if (el2_index - el1_index <= 1)
-                {
-                    return false;
-                }
-                else
-                {
-                    var
-                        slice = this.container.find(this.child_el).slice(el1_index, el2_index),
-                        hasHiddenElement = slice.find(":hidden").length,
-                        //hasHiddenElement = slice.find("." + this.parsed_class).length,
-                        textmap = $.map(
-                          slice,
-                          function(el) {
-                              return $(el).text()
-                          })
-                          .join(" "),
-                        hasEtcSign = slice.find("[class*='" + this.dots_class + "']").length || this.compareText(textmap, this.dots_text);
+                if (
+                    this.preEtc
+                    || (el2_index - el1_index <= 1)
+                ) return;
 
-                    return (hasHiddenElement && !hasEtcSign);
-                }
+                var
+                    slice = this.container.find(this.child_el).slice(el1_index, el2_index),
+                    hasHiddenElement = slice.find(":hidden").length,
+                    hasEtcSign = this.getEtcSign(slice);
+
+                return (hasHiddenElement && !hasEtcSign);
             }
 
             this.reset = function()
             {
-                $(this.els)
+                var dis_class = "." + this.disabled_class.split(" ").join(".");
+
+                this.els
                     .removeClass(this.parsed_class)
                     .css("display", "inline")
-                    .filter(".removable")
+                    .filter(dis_class) // ??
+                        .remove();
+
+                this.container
+                    .find(dis_class)
                         .remove();
             }
 
@@ -191,20 +210,21 @@
             }
 
             this.els = this.container.find(this.child_el);
+            this.preEtc = this.getEtcSign(this.els); // initial etc already there
             this.label();
             this.makeResponsive();
 
-            var resize_timer;
+            this.resize_timer = 0;
 
             $(window).resize(
                 $.proxy(function()
                 {
-                    // realtime, to avoid delay
-                    this.makeResponsive();
-                    /*
-                    clearTimeout(resize_timer);
-                    resize_timer = setTimeout($.proxy(function(){this.makeResponsive()}, this), 100);
-                    */
+                    if (this.use_delay) {
+                        if (this.resize_timer) clearTimeout(this.resize_timer);
+                        this.resize_timer = setTimeout($.proxy(function(){this.makeResponsive()}, this), 100);
+                    } else {
+                        this.makeResponsive();
+                    }
                 }, this)
             );
         }
